@@ -1,0 +1,9 @@
+# Базовые зависимости каркаса API. OCR/PDF/LLM зависимости выбрать и добавить отдельно.
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic-settings
+
+# Разработка и тесты
+pytest
+httpx

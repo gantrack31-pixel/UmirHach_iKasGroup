@@ -1,0 +1,18 @@
+# TODO: согласовать общий способ запуска frontend/backend и переменные окружения.
+# Заготовка сервисов для локальной разработки; OCR и LLM здесь не запускаются.
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - backend
