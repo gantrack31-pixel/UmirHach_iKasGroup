@@ -9,13 +9,6 @@
   overflow: hidden;
   padding: 34px 34px 46px;
 }
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--line) 15%, var(--line) 82%, transparent);
-}
 .hero-art {
   position: absolute;
   z-index: 0;

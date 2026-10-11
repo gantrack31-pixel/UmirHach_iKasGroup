@@ -3,7 +3,7 @@ export function HeroSection() {
     <section className="hero" aria-labelledby="page-title">
       <img className="hero-art" src="/assets/pictures/image.png" alt="" />
       <a className="hero-brand" href="#top" aria-label="Онлайн-деканат — на главную">
-        <img src="/assets/pictures/Знак%20%E2%80%94%20шапочка,%20диплом%20и%20печать.svg" alt="" />
+        <img src="/assets/pictures/logo.svg" alt="" />
         <span>Онлайн Деканат</span>
       </a>
       <div className="hero-copy">
