@@ -1,5 +1,6 @@
 .hero {
-  --hero-art-opacity: 0.43;
+  --hero-art-opacity: 1;
+  --hero-bg: #f7fbfd;
   min-height: 520px;
   position: relative;
   display: grid;
@@ -10,23 +11,30 @@
   overflow: hidden;
   padding: 34px 34px 46px;
 }
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: -2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--hero-bg) 0%, rgba(247, 251, 253, 0.88) 7%, rgba(247, 251, 253, 0.24) 18%, rgba(247, 251, 253, 0) 34%, rgba(247, 251, 253, 0) 72%, rgba(247, 251, 253, 0.32) 88%, var(--hero-bg) 100%);
+}
 .hero-art {
   position: absolute;
   z-index: 0;
-  width: min(92%, 1320px);
-  height: calc(100% - 48px);
-  right: -45px;
-  bottom: 6px;
-  object-fit: contain;
-  object-position: right bottom;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
   opacity: var(--hero-art-opacity);
   pointer-events: none;
-  transform-origin: 80% 70%;
+  transform-origin: 62% 68%;
   animation: art-reveal var(--motion-slow) var(--motion-ease) 120ms both;
 }
 .hero-brand {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   grid-column: 1 / -1;
   display: inline-flex;
   align-items: center;
@@ -55,7 +63,7 @@
 }
 .hero-copy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   grid-column: 1;
   grid-row: 2;
   padding-bottom: 7px;
