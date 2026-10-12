@@ -1,7 +1,7 @@
 export function HeroSection() {
   return (
     <section className="hero" aria-labelledby="page-title">
-      <img className="hero-art" src="/assets/pictures/image.png" alt="" />
+      <img className="hero-art" src="/assets/pictures/image%201.png" alt="" />
       <a className="hero-brand" href="#top" aria-label="Онлайн-деканат — на главную">
         <img src="/assets/pictures/logo.svg" alt="" />
         <span>StudDoc</span>
