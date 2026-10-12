@@ -3,6 +3,7 @@
   border: 2px solid var(--teal);
   border-radius: 15px;
   background: var(--panel-tint);
+  animation: soft-scale-in var(--motion-medium) var(--motion-ease) both;
 }
 .field-row {
   min-height: 68px;
@@ -12,6 +13,31 @@
   gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--line);
+  animation: fade-up var(--motion-medium) var(--motion-ease) both;
+  transition:
+    background var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+.field-row:nth-child(1) {
+  animation-delay: 40ms;
+}
+.field-row:nth-child(2) {
+  animation-delay: 90ms;
+}
+.field-row:nth-child(3) {
+  animation-delay: 140ms;
+}
+.field-row:nth-child(4) {
+  animation-delay: 190ms;
+}
+.field-row:nth-child(5) {
+  animation-delay: 240ms;
+}
+.field-row:nth-child(6) {
+  animation-delay: 290ms;
+}
+.field-row:hover {
+  background: rgba(255, 255, 255, 0.45);
 }
 .field-row:last-child {
   border-bottom: 0;
@@ -31,6 +57,8 @@
   width: 26px;
   height: 26px;
   color: var(--teal);
+  animation: status-pop 340ms var(--motion-ease) both;
+  animation-delay: inherit;
 }
 .field-review .field-check,
 .field-missing .field-check {
@@ -56,6 +84,7 @@
   background: var(--panel-tint);
   font-size: 14px;
   line-height: 1.6;
+  animation: soft-scale-in var(--motion-medium) var(--motion-ease) both;
 }
 .fields-empty strong {
   color: var(--ink);
@@ -74,5 +103,6 @@
   height: 8px;
   border-radius: 50%;
   background: var(--teal);
+  animation: accept-pulse 1.8s ease-out infinite;
 }
 

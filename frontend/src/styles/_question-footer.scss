@@ -5,6 +5,7 @@
   border-radius: 18px;
   background: #fff;
   box-shadow: none;
+  animation: fade-up var(--motion-medium) var(--motion-ease) 380ms both;
 }
 .question-title {
   display: flex;
@@ -12,6 +13,7 @@
   gap: 13px;
   margin-bottom: 16px;
   color: var(--teal);
+  animation: fade-up var(--motion-medium) var(--motion-ease) 430ms both;
 }
 .question-title h2 {
   margin: 0;
@@ -42,7 +44,8 @@
   font-size: 15px;
   transition:
     border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 .question-form input::placeholder {
   color: var(--muted);
@@ -51,6 +54,7 @@
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(40, 159, 161, 0.16);
   outline: 0;
+  transform: translateY(-1px);
 }
 .question-form input:disabled {
   cursor: wait;
@@ -74,6 +78,7 @@
   padding: 24px 2px 0;
   color: var(--muted);
   font-size: 11px;
+  animation: fade-up var(--motion-medium) var(--motion-ease) 460ms both;
 }
 .page-footer span:first-child {
   color: var(--ink);

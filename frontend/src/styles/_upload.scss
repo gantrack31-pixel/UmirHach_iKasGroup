@@ -1,4 +1,5 @@
 .dropzone {
+  position: relative;
   min-height: 300px;
   display: flex;
   flex-direction: column;
@@ -9,15 +10,38 @@
   border-radius: 15px;
   background: var(--panel-tint);
   text-align: center;
+  overflow: hidden;
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.2s ease;
+}
+.dropzone::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 22%, rgba(255, 255, 255, 0.55), transparent 78%);
+  opacity: 0;
+  transform: translateX(-120%);
+}
+.dropzone > * {
+  position: relative;
+  z-index: 1;
 }
 .dropzone.is-dragging {
   border-color: var(--teal);
-  background: var(--panel-tint);
-  transform: scale(1.012);
+  background: #edf7fb;
+  box-shadow: 0 12px 30px rgba(40, 159, 161, 0.14);
+  transform: scale(1.012) translateY(-1px);
+}
+.dropzone.is-dragging::before {
+  opacity: 1;
+  animation: panel-shimmer 1.2s linear infinite;
+}
+.dropzone.is-dragging .upload-symbol {
+  animation: status-pop 420ms var(--motion-ease) both;
 }
 .upload-symbol {
   width: 64px;
@@ -28,6 +52,9 @@
   border-radius: 18px;
   color: var(--teal);
   background: rgba(255, 255, 255, 0.77);
+  transition:
+    background var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
 }
 .dropzone > strong {
   font-size: 18px;
@@ -65,9 +92,15 @@
     transform 0.18s ease,
     box-shadow 0.18s ease;
 }
+.button svg {
+  transition: transform var(--motion-fast) ease;
+}
 .button:hover:not(:disabled) {
   background: var(--teal-dark);
   box-shadow: 0 5px 13px rgba(40, 159, 161, 0.18);
+  transform: translateY(-1px);
+}
+.button:hover:not(:disabled) svg {
   transform: translateY(-1px);
 }
 .button:disabled {
@@ -128,6 +161,16 @@
   border: 1px solid transparent;
   border-radius: 15px;
   background: var(--panel-tint);
+  animation:
+    fade-up var(--motion-medium) var(--motion-ease) both,
+    accept-pulse 720ms ease-out 80ms both;
+  transition:
+    background var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+.file-card:hover {
+  background: #edf7fb;
+  transform: translateY(-1px);
 }
 .file-icon {
   width: 54px;
@@ -177,6 +220,9 @@
   border-radius: 0;
   background: transparent;
 }
+.file-check {
+  animation: status-pop 360ms var(--motion-ease) 140ms both;
+}
 .icon-button {
   width: 28px;
   height: 30px;
@@ -188,10 +234,15 @@
   border-radius: 6px;
   background: transparent;
   cursor: pointer;
+  transition:
+    background var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
 }
 .icon-button:hover {
   color: var(--teal-dark);
   background: var(--panel-tint);
+  transform: scale(1.08);
 }
 .empty-file {
   display: flex;
@@ -214,5 +265,6 @@
   color: #bb4949;
   font-size: 14px;
   line-height: 1.5;
+  animation: fade-up 220ms var(--motion-ease) both;
 }
 
