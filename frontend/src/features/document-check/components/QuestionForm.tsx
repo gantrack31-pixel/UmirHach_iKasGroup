@@ -39,7 +39,7 @@ export function QuestionForm({ question, isProcessing, error, onQuestionChange, 
         </button>
       </form>
       {error && <p className="inline-error" id="question-error" role="alert">{error}</p>}
-      <p className="question-footnote" id="question-note">Демо-режим: файл не отправляется и не распознаётся, результат — пример.</p>
+      
     </section>
   );
 }

@@ -37,8 +37,11 @@ export function useDocumentCheck(service: DocumentCheckService) {
         dispatch({ type: "check/stepChanged", step });
       });
       dispatch({ type: "check/succeeded", result });
-    } catch {
-      dispatch({ type: "check/failed", message: "Не удалось сформировать результат. Попробуйте ещё раз." });
+    } catch (error) {
+      dispatch({
+        type: "check/failed",
+        message: error instanceof Error ? error.message : "Не удалось сформировать результат. Попробуйте ещё раз.",
+      });
     }
   };
 

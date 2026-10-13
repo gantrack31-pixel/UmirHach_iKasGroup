@@ -10,14 +10,15 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-weight: 500;
-  --ink: #12384e;
-  --muted: #526f82;
-  --teal: #289fa1;
-  --teal-dark: #1f8388;
-  --sky: #e4effa;
-  --line: #c9dce9;
-  --panel-border: #e4effa;
-  --panel-tint: #e4effa;
+  --ink: #0d3043;        // было #12384e, чуть глубже
+  --muted: #446276;      // было #526f82, меньше серости
+  --teal: #1ca6a8;       // было #289fa1, ярче и свежее
+  --teal-dark: #137f86;  // было #1f8388, темнее для hover
+  --sky: #d8ecf8;        // было #e4effa, чуть насыщеннее
+  --line: #b8d2e3;       // было #c9dce9, заметнее границы
+  --panel-border: #d3e8f5;
+  --panel-tint: #eaf6fb;
+
   --motion-fast: 180ms;
   --motion-medium: 360ms;
   --motion-slow: 680ms;

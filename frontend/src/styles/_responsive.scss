@@ -25,6 +25,9 @@
     min-height: 620px;
     padding: 30px 30px 27px;
   }
+  .fields-panel {
+    min-height: 0;
+  }
   .panel-heading h2 {
     font-size: 27px;
   }
@@ -98,6 +101,9 @@
   .panel {
     min-height: 490px;
     padding: 23px 22px 20px;
+  }
+  .fields-panel {
+    min-height: 0;
   }
   .panel-heading h2 {
     font-size: 22px;
@@ -248,6 +254,9 @@
     grid-template-columns: minmax(100px, 0.82fr) minmax(0, 1.3fr) 22px;
     gap: 7px;
     padding: 10px 9px;
+  }
+  .field-list {
+    max-height: 300px;
   }
   .field-row > strong {
     font-size: 13px;
