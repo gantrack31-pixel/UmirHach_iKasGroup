@@ -1,24 +1,50 @@
-import type { DocumentCheckInput, DocumentCheckResult, FieldStatus } from "../types/documentCheck";
+import type { DocumentCheckInput, DocumentCheckResult, DocumentType, FieldStatus } from "../types/documentCheck";
 import type { DocumentCheckService } from "../types/service";
 
 type OcrAnalyzeResponse = {
   status: string;
-  promt?: string;
-  photos: number;
-  answers: string[];
+  ocr_text: string;
+  document_type: DocumentType;
+  fields: Record<string, string | boolean>;
 };
 
 type RuntimeEnv = {
   VITE_OCR_API_URL?: string;
 };
 
+const documentTypeLabels: Record<DocumentType, string> = {
+  study_certificate: "Справка об обучении",
+  academic_leave_application: "Заявление на академический отпуск",
+  internship_certificate: "Справка о практике",
+};
+
+const fieldLabels: Record<string, string> = {
+  student_name: "ФИО студента",
+  university: "Название вуза",
+  program: "Направление подготовки",
+  study_form: "Форма обучения",
+  study_start: "Начало периода обучения",
+  study_end: "Окончание периода обучения",
+  document_number: "Номер справки",
+  issue_date: "Дата выдачи",
+  group: "Учебная группа",
+  course: "Курс",
+  leave_reason: "Причина отпуска",
+  leave_start: "Дата начала отпуска",
+  leave_end: "Дата окончания отпуска",
+  application_date: "Дата заявления",
+  organization: "Название организации",
+  internship_start: "Дата начала практики",
+  internship_end: "Дата окончания практики",
+  supervisor_name: "ФИО руководителя практики",
+  grade: "Оценка",
+  signature_present: "Подпись",
+  seal_present: "Печать",
+};
+
 const getRuntimeEnv = () => ((import.meta as unknown as { env?: RuntimeEnv }).env ?? {});
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 const OCR_API_URL = trimTrailingSlash(getRuntimeEnv().VITE_OCR_API_URL || "/ocr-api");
-
-function isPdf(file: File) {
-  return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-}
 
 async function readErrorMessage(response: Response) {
   try {
@@ -29,52 +55,84 @@ async function readErrorMessage(response: Response) {
   }
 
   if (response.status === 413) return "Файл слишком большой для OCR-сервиса.";
-  if (response.status === 422) return "OCR-сервис принимает только корректные JPG или PNG.";
+  if (response.status === 422) return "Проверьте тип документа и формат файла: нужны JPG, PNG или одностраничный PDF.";
   if (response.status === 503) return "OCR временно недоступен. Попробуйте позже.";
   return "Не удалось получить ответ от OCR-сервиса.";
 }
 
-function compactText(items: string[]) {
-  return items.map((item) => item.trim()).filter(Boolean).join("\n\n");
+function getFieldLabel(key: string) {
+  return fieldLabels[key] ?? key.replace(/_/g, " ");
 }
 
-function fieldStatusForText(text: string): FieldStatus {
-  return text ? "review" : "missing";
+function formatFieldValue(value: string | boolean) {
+  if (typeof value === "boolean") return value ? "Присутствует" : "Не найдено";
+  return value.trim() || "не найдено";
+}
+
+function getFieldStatus(value: string | boolean): FieldStatus {
+  if (typeof value === "boolean") return value ? "found" : "missing";
+  return value.trim().toLowerCase() === "не найдено" ? "missing" : "found";
+}
+
+function getResultStatus(response: OcrAnalyzeResponse): DocumentCheckResult["status"] {
+  const values = Object.values(response.fields);
+  const foundCount = values.filter((value) => getFieldStatus(value) === "found").length;
+
+  if (!response.ocr_text.trim() || values.length === 0 || foundCount === 0) return "unknown";
+  if (foundCount === values.length) return "success";
+  return "warning";
+}
+
+function formatMissingFieldsCount(count: number) {
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return `${count} полей требуют`;
+  if (lastDigit === 1) return `${count} поле требует`;
+  if (lastDigit >= 2 && lastDigit <= 4) return `${count} поля требуют`;
+  return `${count} полей требуют`;
+}
+
+function buildAnswer(response: OcrAnalyzeResponse) {
+  const values = Object.values(response.fields);
+  const missingCount = values.filter((value) => getFieldStatus(value) === "missing").length;
+
+  if (!response.ocr_text.trim()) {
+    return "OCR не нашёл текст в документе. Попробуйте загрузить более чёткое фото или одностраничный PDF.";
+  }
+
+  if (missingCount === 0) {
+    return "Документ распознан, обязательные поля для выбранного типа найдены.";
+  }
+
+  return `Документ распознан, но ${formatMissingFieldsCount(missingCount)} проверки или заполнения.`;
 }
 
 function mapOcrResponseToDocumentCheckResult(response: OcrAnalyzeResponse): DocumentCheckResult {
-  const text = compactText(response.answers ?? []);
-  const hasText = Boolean(text);
+  const ocrText = response.ocr_text.trim();
 
   return {
-    status: hasText ? "warning" : "unknown",
-    fields: [
-      {
-        label: "Распознанный текст",
-        value: text || "OCR не нашёл текст на изображении.",
-        status: fieldStatusForText(text),
-      },
-    ],
-    answer: hasText
-      ? "Документ распознан. Проверка по правилам университета пока не подключена."
-      : "OCR не нашёл текст на изображении. Попробуйте загрузить более чёткое фото документа.",
+    status: getResultStatus(response),
+    fields: Object.entries(response.fields).map(([key, value]) => ({
+      label: getFieldLabel(key),
+      value: formatFieldValue(value),
+      status: getFieldStatus(value),
+    })),
+    answer: buildAnswer(response),
     sourceTitle: "OCR-сервис",
-    sourceReference: `EasyOCR backend · ${response.photos} фото`,
-    sourceExcerpt: text || "Нет распознанного текста.",
+    sourceReference: `${documentTypeLabels[response.document_type]} · структурированное распознавание`,
+    sourceExcerpt: ocrText || "Нет распознанного текста.",
   };
 }
 
 export class ApiDocumentCheckService implements DocumentCheckService {
   async analyze(input: DocumentCheckInput, onProgress: (message: string) => void): Promise<DocumentCheckResult> {
-    if (isPdf(input.file)) {
-      throw new Error("OCR-сервис пока принимает только JPG и PNG. PDF подключим отдельным этапом.");
-    }
-
     onProgress("Отправляем документ в OCR-сервис...");
 
     const formData = new FormData();
     formData.append("photos", input.file, input.file.name);
     formData.append("prompt", input.question);
+    formData.append("document_type", input.documentType);
 
     const response = await fetch(`${OCR_API_URL}/analyze`, {
       method: "POST",

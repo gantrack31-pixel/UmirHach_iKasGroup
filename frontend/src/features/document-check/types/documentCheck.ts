@@ -1,5 +1,5 @@
 export type CheckStatus = "success" | "warning" | "unknown";
-export type DocumentType = "study_certificate" | "application" | "internship_certificate" | "other";
+export type DocumentType = "study_certificate" | "academic_leave_application" | "internship_certificate";
 export type FieldStatus = "found" | "review" | "missing";
 
 export type UploadedDocument = {
