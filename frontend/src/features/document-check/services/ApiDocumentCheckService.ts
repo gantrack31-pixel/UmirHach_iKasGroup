@@ -2,11 +2,13 @@ import type { DocumentCheckInput, DocumentCheckResult, DocumentType, FieldStatus
 import type { DocumentCheckService } from "../types/service";
 
 type OcrAnalyzeResponse = {
-  status: string;
-  ocr_text: string;
+  status?: string;
+  ocr_text?: string;
   document_type: DocumentType;
   fields: Record<string, string | boolean>;
 };
+
+type FastApiErrorDetail = string | { msg?: string; loc?: Array<string | number> }[];
 
 type RuntimeEnv = {
   VITE_OCR_API_URL?: string;
@@ -48,8 +50,13 @@ const OCR_API_URL = trimTrailingSlash(getRuntimeEnv().VITE_OCR_API_URL || "/ocr-
 
 async function readErrorMessage(response: Response) {
   try {
-    const payload = (await response.json()) as { detail?: string };
-    if (payload.detail) return payload.detail;
+    const payload = (await response.json()) as { detail?: FastApiErrorDetail };
+    if (typeof payload.detail === "string") return payload.detail;
+    if (Array.isArray(payload.detail) && payload.detail.length > 0) {
+      const firstError = payload.detail[0];
+      const fieldName = firstError.loc?.slice(1).join(".") || "поле формы";
+      return firstError.msg ? `${fieldName}: ${firstError.msg}` : "Проверьте данные формы и попробуйте ещё раз.";
+    }
   } catch {
     // The backend may return a non-JSON error page if it fails before FastAPI handles it.
   }
@@ -74,11 +81,15 @@ function getFieldStatus(value: string | boolean): FieldStatus {
   return value.trim().toLowerCase() === "не найдено" ? "missing" : "found";
 }
 
+function getOcrText(response: OcrAnalyzeResponse) {
+  return response.ocr_text?.trim() ?? "";
+}
+
 function getResultStatus(response: OcrAnalyzeResponse): DocumentCheckResult["status"] {
   const values = Object.values(response.fields);
   const foundCount = values.filter((value) => getFieldStatus(value) === "found").length;
 
-  if (!response.ocr_text.trim() || values.length === 0 || foundCount === 0) return "unknown";
+  if (values.length === 0 || foundCount === 0) return "unknown";
   if (foundCount === values.length) return "success";
   return "warning";
 }
@@ -97,8 +108,8 @@ function buildAnswer(response: OcrAnalyzeResponse) {
   const values = Object.values(response.fields);
   const missingCount = values.filter((value) => getFieldStatus(value) === "missing").length;
 
-  if (!response.ocr_text.trim()) {
-    return "OCR не нашёл текст в документе. Попробуйте загрузить более чёткое фото или одностраничный PDF.";
+  if (values.length === 0) {
+    return "OCR-сервис не вернул поля документа. Попробуйте загрузить более чёткое фото или одностраничный PDF.";
   }
 
   if (missingCount === 0) {
@@ -109,7 +120,7 @@ function buildAnswer(response: OcrAnalyzeResponse) {
 }
 
 function mapOcrResponseToDocumentCheckResult(response: OcrAnalyzeResponse): DocumentCheckResult {
-  const ocrText = response.ocr_text.trim();
+  const ocrText = getOcrText(response);
 
   return {
     status: getResultStatus(response),
