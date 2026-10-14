@@ -3,9 +3,8 @@ import type { DocumentTypeCatalog } from "../types/service";
 
 export const documentTypeOptions: { value: DocumentType; label: string }[] = [
   { value: "study_certificate", label: "Справка об обучении" },
-  { value: "application", label: "Заявление" },
+  { value: "academic_leave_application", label: "Заявление на академический отпуск" },
   { value: "internship_certificate", label: "Справка о практике" },
-  { value: "other", label: "Другой документ" },
 ];
 
 export class StaticDocumentTypeCatalog implements DocumentTypeCatalog {

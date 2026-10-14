@@ -20,7 +20,7 @@ export function Icon({ name, size = 22 }: IconProps) {
 
   switch (name) {
     case "upload":
-      return <svg {...common}><path d="M12 19v-9m0 0L8 14m4-4 4 4"/><path d="M6.5 18h10a4.5 4.5 0 0 0 .6-8.96A6 6 0 0 0 5.2 10.5 3.8 3.8 0 0 0 6.5 18Z"/></svg>;
+      return <svg {...common} strokeWidth={1.9}><path d="M7 17.5h9.4a4.1 4.1 0 0 0 .55-8.15A5.4 5.4 0 0 0 6.3 10.7 3.45 3.45 0 0 0 7 17.5Z"/><path d="M12 15.8V9.4"/><path d="m8.9 12.4 3.1-3.1 3.1 3.1"/></svg>;
     case "folder":
       return <svg {...common}><path d="M3.5 6.5h6l2 2h9v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 8.5v-2a2 2 0 0 1 2-2h4l2 2"/></svg>;
     case "file":

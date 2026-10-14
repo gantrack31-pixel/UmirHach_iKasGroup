@@ -26,6 +26,7 @@ export function DocumentUploadPanel({ file, error, documentType, documentTypeOpt
         <span>Тип документа</span>
         <select
           id="document-type"
+          name="document-type"
           value={documentType}
           disabled={isProcessing}
           aria-invalid={Boolean(documentTypeError)}

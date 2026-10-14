@@ -28,7 +28,7 @@ export function ExtractedFieldsPanel({ fields, hasResult }: ExtractedFieldsPanel
           <span>{hasResult ? "Для выбранного сценария нет примеров полей." : "Выберите тип документа, загрузите файл и запустите демо-проверку."}</span>
         </div>
       )}
-      <p className="fields-note"><span className="note-dot" /> Данные примера, не распознавание файла</p>
+      <p className="fields-note"><span className="note-dot" /> Поля из результата проверки документа</p>
     </article>
   );
 }

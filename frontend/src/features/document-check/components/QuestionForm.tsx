@@ -26,10 +26,12 @@ export function QuestionForm({ question, isProcessing, error, onQuestionChange, 
         <label className="visually-hidden" htmlFor="student-question">Ваш вопрос</label>
         <input
           id="student-question"
+          name="student-question"
+          autoComplete="off"
           value={question}
           disabled={isProcessing}
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? "question-error question-note" : "question-note"}
+          aria-describedby={error ? "question-error" : undefined}
           onChange={(event) => onQuestionChange(event.target.value)}
           placeholder="Например: Хватит ли этой справки для перевода на второй курс?"
         />

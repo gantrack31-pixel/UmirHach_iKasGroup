@@ -1,76 +1,111 @@
 ---
-title: "Контракт API (черновик)"
+title: "Контракт API"
 tags: [online-dekanat, api, tech]
-aliases: []
-status: "черновик"
+status: "актуально"
 created: 2026-10-10
-updated: 2026-10-10
-version: "1.1"
+updated: 2026-10-14
+version: "2.0"
 project: "Онлайн-деканат"
 owner: "Команда"
 ---
 
-# 🛠️ Контракт API (черновик)
+# Контракт API
 
-> [!abstract] Кратко
-> Страница рабочей документации проекта «Онлайн-деканат». Исходное содержание сохранено.
+Backend: `backend/online-dekanat-backend`.
 
-## 🗺️ Содержание
+Интерактивная документация FastAPI после запуска: `http://127.0.0.1:8000/docs`.
 
-- [[#📌 POST `/api/v1/analyze`|POST `/api/v1/analyze`]]
-- [[#🔎 GET `/api/v1/health`|GET `/api/v1/health`]]
-- [[#POST `/api/v1/export`|POST `/api/v1/export`]]
-- [[#Коды ошибок|Коды ошибок]]
-- [[#Контракт полей|Контракт полей]]
+## `GET /health`
 
----
+Проверяет, что процесс backend жив.
 
+Ответ:
 
-
- > [!WARNING] Внутренний черновик
-> Это **предлагаемые** схемы между frontend/backend, не официальная схема `results.json`. Официальный формат определить по README набора.
-
-## 📌 POST `/api/v1/analyze`
-`multipart/form-data`: `file` (JPG/PNG/PDF), `question` (строка), `document_type` (опционально).
-
-Ответ `200` (пример, **синтетические** данные):
 ```json
 {
-  "document_id":"demo-001",
-  "document_type":"education_certificate",
-  "fields":{
-    "full_name":{"value":"Иванов Иван","status":"found","confidence":0.96},
-    "issue_date":{"value":null,"status":"not_detected","confidence":null}
-  },
-  "checks":[{"rule_id":"DEMO-3.4","status":"needs_review","message":"Дата не распознана"}],
-  "decision":"needs_review",
-  "answer":"Дата выдачи не распознана; проверьте документ вручную.",
-  "citations":["DEMO-3.4"]
+  "status": "ok"
 }
 ```
-`DEMO-3.4` — **фиктивный демонстрационный идентификатор**, не пункт реального Положения.
 
-## 🔎 GET `/api/v1/health`
-`{"status":"ok","ocr_ready":true,"llm_optional":true}`
+## `POST /analyze`
 
-## POST `/api/v1/export`
-Экспорт по точной схеме из README организаторов. Разработать после получения образца; до этого не фиксировать поля результата.
+Формат: `multipart/form-data`.
 
-## Коды ошибок
-- 400: битый/неподдерживаемый файл.
-- 413: превышен лимит размера.
-- 422: некорректный тип/параметры.
-- 503: OCR недоступен (не маскировать как отрицательное решение).
+Поля:
 
-## Контракт полей
-`found` — распознано; `not_detected` — не найдено распознаванием; `ambiguous` — несколько значений; `requires_manual_review` — визуальный признак не подтверждён.
+| Поле | Тип | Ограничения |
+|---|---|---|
+| `prompt` | string | непустой вопрос, максимум 2000 символов |
+| `document_type` | enum | `study_certificate`, `academic_leave_application`, `internship_certificate` |
+| `photos` | file[] | ровно один файл |
 
-Решение по конкретному rule_id принимается только из файла Положения. См. [[02 Техника/Архитектура]].
+Файл:
 
-## 🔗 Связанные заметки
+- JPEG, PNG или PDF;
+- максимум 10 МиБ;
+- PDF должен быть одностраничным и без пароля;
+- изображение/страница не больше 20 мегапикселей;
+- всё тело запроса максимум 42 МиБ.
 
-- [[00 Главная|00 Главная]]
-- [[02 Техника/Архитектура|Архитектура]]
-- [[02 Техника/Технологический стек|Технологический стек]]
-- [[04 Задачи/Главный TODO|Главный TODO]]
-- [[05 Календарь/Календарь спринта|Календарь спринта]]
+Пример:
+
+```bash
+curl http://127.0.0.1:8000/analyze \
+  -F 'prompt=Какая дата выдачи?' \
+  -F 'document_type=study_certificate' \
+  -F 'photos=@document.pdf;type=application/pdf'
+```
+
+Ответ:
+
+```json
+{
+  "status": "received",
+  "ocr_text": "распознанный текст",
+  "document_type": "study_certificate",
+  "fields": {
+    "student_name": "Александров Артём Игоревич",
+    "university": "Учебный университет кМеридианх",
+    "program": "38.03.01 Экономика",
+    "study_form": "очная",
+    "study_start": "2023-09-01",
+    "study_end": "2026-08-31",
+    "document_number": "ОБ-1001",
+    "issue_date": "2026-09-01",
+    "signature_present": true,
+    "seal_present": true
+  }
+}
+```
+
+Важно: `status: "received"` означает, что backend обработал запрос. Это не означает, что документ нормативно подходит.
+
+## Ошибки
+
+| Код | Когда |
+|---|---|
+| `400` | некорректный запрос до обработки FastAPI |
+| `413` | файл или тело запроса слишком большие |
+| `422` | нет вопроса, неправильный тип, пустой файл, битый PDF/изображение |
+| `503` | OCR не смог выполниться |
+
+Ответ ошибки содержит `detail`.
+
+## Как frontend мапит ответ
+
+`ApiDocumentCheckService`:
+
+1. отправляет `photos`, `prompt`, `document_type`;
+2. читает JSON;
+3. преобразует `fields` в UI-массив `{ label, value, status }`;
+4. считает общий статус:
+   - `success`, если все поля найдены;
+   - `warning`, если часть полей не найдена;
+   - `unknown`, если OCR-текст пустой или полей нет;
+5. кладёт `ocr_text` в `sourceExcerpt`.
+
+## Что ещё нужно добавить в контракт
+
+- `blocks` с OCR-координатами пока описаны в backend README, но frontend их не использует.
+- Нужен будущий блок нормативной проверки: `answer`, `rule_id`, `evidence`, `requires_manual_review`.
+- Нужен официальный формат `results.json`.
