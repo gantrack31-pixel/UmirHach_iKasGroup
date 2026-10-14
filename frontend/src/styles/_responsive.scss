@@ -139,6 +139,19 @@
     gap: 23px;
     padding: 27px 3px 30px;
   }
+  .hero-help {
+    top: 27px;
+    right: 8px;
+  }
+  .hero-help-button {
+    width: clamp(48px, 13vw, 56px);
+    height: clamp(48px, 13vw, 56px);
+    border-radius: 16px;
+  }
+  .hero-help-button svg {
+    width: clamp(22px, 6.5vw, 27px);
+    height: clamp(22px, 6.5vw, 27px);
+  }
   .hero-art {
     width: 155%;
     height: 76%;

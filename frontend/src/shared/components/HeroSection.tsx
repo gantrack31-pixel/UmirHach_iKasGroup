@@ -1,7 +1,18 @@
+import { Icon } from "./Icon";
+
 export function HeroSection() {
   return (
     <section className="hero" aria-labelledby="page-title">
       <img className="hero-art" src="/assets/pictures/image%201.png" alt="" />
+      <div className="hero-help">
+        <a
+          className="hero-help-button"
+          href="/help"
+          aria-label="Открыть справочник"
+        >
+          <Icon name="help" size={32} />
+        </a>
+      </div>
       <a className="hero-brand" href="#top" aria-label="Онлайн-деканат — на главную">
         <img src="/assets/pictures/logo.svg" alt="" />
         <span>StudDoc</span>
