@@ -1,4 +1,4 @@
-type IconName = "upload" | "folder" | "file" | "close" | "chat" | "send" | "external" | "check";
+type IconName = "upload" | "folder" | "file" | "close" | "chat" | "send" | "external" | "check" | "help" | "arrow-left";
 
 type IconProps = {
   name: IconName;
@@ -35,5 +35,9 @@ export function Icon({ name, size = 22 }: IconProps) {
       return <svg {...common}><path d="M14 4h6v6m0-6-9 9"/><path d="M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg>;
     case "check":
       return <svg {...common} strokeWidth={2.6}><path d="m5 12 4 4L19 6"/></svg>;
+    case "help":
+      return <svg {...common} strokeWidth={2.2}><circle cx="12" cy="12" r="9"/><path d="M9.75 9.5a2.5 2.5 0 0 1 4.85.82c0 1.85-2.6 2.08-2.6 4.18"/><path d="M12 18h.01"/></svg>;
+    case "arrow-left":
+      return <svg {...common} strokeWidth={2.2}><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>;
   }
 }

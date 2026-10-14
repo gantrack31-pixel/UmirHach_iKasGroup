@@ -95,6 +95,40 @@
   line-height: 1.65;
   letter-spacing: -0.1px;
 }
+.hero-help {
+  position: absolute;
+  z-index: 4;
+  top: 34px;
+  right: 34px;
+}
+.hero-help-button {
+  width: clamp(56px, 5vw, 74px);
+  height: clamp(56px, 5vw, 74px);
+  display: grid;
+  place-items: center;
+  color: #677d83;
+  border: 2px solid rgba(184, 210, 227, 0.62);
+  border-radius: clamp(17px, 1.7vw, 22px);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 15px 34px rgba(13, 48, 67, 0.08);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    transform var(--motion-fast) ease;
+}
+.hero-help-button svg {
+  width: clamp(24px, 2.2vw, 31px);
+  height: clamp(24px, 2.2vw, 31px);
+}
+.hero-help-button:hover,
+.hero-help-button:focus-visible {
+  color: var(--teal-dark);
+  border-color: rgba(28, 166, 168, 0.36);
+  background: rgba(255, 255, 255, 0.94);
+  transform: translateY(-1px);
+}
 .hero-watermark {
   position: absolute;
   right: 18px;
