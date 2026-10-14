@@ -7,6 +7,8 @@ const steps = [
     text: "Для приложенной справки выберите тип «Справка об обучении». От этого зависит, какие поля backend будет искать в OCR-тексте.",
     image: "/assets/help/help-step-upload-empty.png",
     alt: "Скриншот выбранного типа документа и пустой зоны загрузки",
+    width: 1056,
+    height: 1344,
   },
   {
     number: "02",
@@ -14,6 +16,8 @@ const steps = [
     text: "Подойдут JPG, PNG или одностраничный PDF до 10 МБ. Чем ровнее и чётче документ, тем стабильнее OCR читает даты и номера.",
     image: "/assets/help/help-step-upload-selected.png",
     alt: "Скриншот загруженной справки об обучении",
+    width: 1060,
+    height: 1400,
   },
   {
     number: "03",
@@ -21,6 +25,8 @@ const steps = [
     text: "Вопрос помогает сохранить смысл проверки для пользователя. OCR всё равно распознаёт документ локально и возвращает найденные поля.",
     image: "/assets/help/help-step-question.png",
     alt: "Скриншот поля вопроса студента",
+    width: 3184,
+    height: 294,
   },
   {
     number: "04",
@@ -28,6 +34,8 @@ const steps = [
     text: "После обработки появятся найденные сведения, общий статус и исходный OCR-текст. Поля «не найдено» стоит перепроверить по оригиналу.",
     image: "/assets/help/help-step-result.png",
     alt: "Скриншот результата проверки документа",
+    width: 2110,
+    height: 1400,
   },
 ];
 
@@ -49,6 +57,14 @@ export function HelpPage() {
           <h1>Как проверить справку об обучении</h1>
           <p>Короткая последовательность действий с примерами экранов, чтобы пройти проверку от загрузки файла до результата.</p>
         </div>
+        <ol className="help-hero-steps" aria-label="Краткие шаги проверки">
+          {steps.map((step) => (
+            <li key={step.number}>
+              <span>{step.number}</span>
+              {step.title}
+            </li>
+          ))}
+        </ol>
       </header>
 
       <section className="help-document" aria-labelledby="help-document-title">
@@ -75,7 +91,7 @@ export function HelpPage() {
               <p>{step.text}</p>
             </div>
             <figure className="help-step-shot">
-              <img src={step.image} alt={step.alt} />
+              <img src={step.image} alt={step.alt} width={step.width} height={step.height} loading="lazy" />
             </figure>
           </article>
         ))}
