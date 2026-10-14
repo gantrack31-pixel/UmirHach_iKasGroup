@@ -1,4 +1,14 @@
-import type { DocumentCheckAction, DocumentCheckState } from "../types/documentCheck";
+import type { DocumentCheckAction, DocumentCheckState, ExtractedField } from "../types/documentCheck";
+
+function getStatusAfterManualCorrection(state: DocumentCheckState) {
+  const fields = state.result?.fields ?? [];
+  if (!fields.length) return state.result?.status ?? "unknown";
+
+  const filledCount = fields.filter((field) => field.status === "found" || field.status === "manual").length;
+  if (filledCount === fields.length) return "success";
+  if (filledCount === 0) return "unknown";
+  return "warning";
+}
 
 export function documentCheckReducer(state: DocumentCheckState, action: DocumentCheckAction): DocumentCheckState {
   switch (action.type) {
@@ -12,6 +22,30 @@ export function documentCheckReducer(state: DocumentCheckState, action: Document
       return { ...state, documentType: action.documentType, result: null, formError: "", documentTypeError: "" };
     case "question/changed":
       return { ...state, question: action.question, result: null, formError: "" };
+    case "field/manualChanged": {
+      if (!state.result) return state;
+
+      const fields: ExtractedField[] = state.result.fields.map((field) => {
+        if (field.id !== action.fieldId) return field;
+
+        const value = action.value.trim();
+        return {
+          ...field,
+          value,
+          status: value ? "manual" : "missing",
+          source: value ? "manual" : undefined,
+        };
+      });
+      const nextState = { ...state, result: { ...state.result, fields } };
+
+      return {
+        ...nextState,
+        result: {
+          ...nextState.result,
+          status: getStatusAfterManualCorrection(nextState),
+        },
+      };
+    }
     case "validation/failed":
       return {
         ...state,

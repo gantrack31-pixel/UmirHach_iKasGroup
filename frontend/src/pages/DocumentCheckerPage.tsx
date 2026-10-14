@@ -22,7 +22,11 @@ export function DocumentCheckerPage() {
             onFileRemove={documentCheck.removeFile}
             onDocumentTypeChange={documentCheck.setDocumentType}
           />
-          <ExtractedFieldsPanel fields={documentCheck.result?.fields ?? []} hasResult={Boolean(documentCheck.result)} />
+          <ExtractedFieldsPanel
+            fields={documentCheck.result?.fields ?? []}
+            hasResult={Boolean(documentCheck.result)}
+            onManualFieldChange={documentCheck.setManualField}
+          />
           <CheckResultPanel
             status={documentCheck.status}
             isProcessing={documentCheck.isProcessing}

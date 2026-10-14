@@ -4,12 +4,12 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
   study_certificate: {
     status: "success",
     fields: [
-      { label: "ФИО", value: "Иванов Иван Иванович", status: "found" },
-      { label: "Вуз", value: "Московский государственный университет", status: "found" },
-      { label: "Период обучения", value: "01.09.2023 — 30.06.2027", status: "found" },
-      { label: "Дата выдачи", value: "15.04.2025", status: "found" },
-      { label: "Подпись", value: "Присутствует", status: "found" },
-      { label: "Печать", value: "Присутствует", status: "found" },
+      { id: "student_name", label: "ФИО", value: "Иванов Иван Иванович", status: "found" },
+      { id: "university", label: "Вуз", value: "Московский государственный университет", status: "found" },
+      { id: "study_period", label: "Период обучения", value: "01.09.2023 — 30.06.2027", status: "found" },
+      { id: "issue_date", label: "Дата выдачи", value: "15.04.2025", status: "found" },
+      { id: "signature", label: "Подпись", value: "Присутствует", status: "found" },
+      { id: "seal", label: "Печать", value: "Присутствует", status: "found" },
     ],
     answer: "В демонстрационном сценарии справка содержит основные сведения об обучении. Для реальной проверки нужно подключить распознавание документа.",
     sourceTitle: "Демонстрационное основание",
@@ -19,10 +19,10 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
   application: {
     status: "warning",
     fields: [
-      { label: "ФИО заявителя", value: "Иванов Иван Иванович", status: "found" },
-      { label: "Тема заявления", value: "Перевод на следующий курс", status: "found" },
-      { label: "Дата", value: "Не указана в демо-сценарии", status: "review" },
-      { label: "Подпись", value: "Требует ручной проверки", status: "review" },
+      { id: "applicant_name", label: "ФИО заявителя", value: "Иванов Иван Иванович", status: "found" },
+      { id: "application_topic", label: "Тема заявления", value: "Перевод на следующий курс", status: "found" },
+      { id: "application_date", label: "Дата", value: "Не указана в демо-сценарии", status: "review" },
+      { id: "signature", label: "Подпись", value: "Требует ручной проверки", status: "review" },
     ],
     answer: "Демонстрационный сценарий показывает замечания к заявлению. Фактическое содержание загруженного файла в браузере не распознаётся.",
     sourceTitle: "Демонстрационное основание",
@@ -32,10 +32,10 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
   internship_certificate: {
     status: "warning",
     fields: [
-      { label: "ФИО", value: "Иванов Иван Иванович", status: "found" },
-      { label: "Организация", value: "Не указана в демо-сценарии", status: "missing" },
-      { label: "Период практики", value: "01.06.2025 — 30.06.2025", status: "found" },
-      { label: "Подпись и печать", value: "Требуют ручной проверки", status: "review" },
+      { id: "student_name", label: "ФИО", value: "Иванов Иван Иванович", status: "found" },
+      { id: "organization", label: "Организация", value: "Не указана в демо-сценарии", status: "missing" },
+      { id: "internship_period", label: "Период практики", value: "01.06.2025 — 30.06.2025", status: "found" },
+      { id: "signature_and_seal", label: "Подпись и печать", value: "Требуют ручной проверки", status: "review" },
     ],
     answer: "В демонстрационном сценарии не все данные справки о практике подтверждены. Используйте результат только для знакомства с интерфейсом.",
     sourceTitle: "Демонстрационное основание",
@@ -45,8 +45,8 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
   other: {
     status: "unknown",
     fields: [
-      { label: "Тип документа", value: "Не определён в демо-режиме", status: "missing" },
-      { label: "Распознанные сведения", value: "Для этого типа нет демо-сценария", status: "missing" },
+      { id: "document_type", label: "Тип документа", value: "Не определён в демо-режиме", status: "missing" },
+      { id: "recognized_data", label: "Распознанные сведения", value: "Для этого типа нет демо-сценария", status: "missing" },
     ],
     answer: "Для выбранного типа нет демонстрационного сценария. Файл не распознавался; для настоящего результата потребуется подключение сервиса обработки документов.",
     sourceTitle: "Источник не подключён",

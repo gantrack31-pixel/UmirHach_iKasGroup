@@ -1,6 +1,7 @@
 export type CheckStatus = "success" | "warning" | "unknown";
 export type DocumentType = "study_certificate" | "application" | "internship_certificate" | "other";
-export type FieldStatus = "found" | "review" | "missing";
+export type FieldStatus = "found" | "review" | "missing" | "manual";
+export type FieldSource = "ocr" | "manual";
 
 export type UploadedDocument = {
   file: File;
@@ -10,9 +11,11 @@ export type UploadedDocument = {
 };
 
 export type ExtractedField = {
+  id: string;
   label: string;
   value: string;
   status: FieldStatus;
+  source?: FieldSource;
 };
 
 export type StatusContent = {
@@ -35,6 +38,7 @@ export type DocumentCheckInput = {
   file: File;
   documentType: DocumentType;
   question: string;
+  manualFields?: ExtractedField[];
 };
 
 export type DocumentCheckState = {
@@ -55,6 +59,7 @@ export type DocumentCheckAction =
   | { type: "file/rejected"; message: string }
   | { type: "documentType/changed"; documentType: DocumentType | "" }
   | { type: "question/changed"; question: string }
+  | { type: "field/manualChanged"; fieldId: string; value: string }
   | { type: "validation/failed"; target: "file" | "documentType" | "question"; message: string }
   | { type: "check/started" }
   | { type: "check/stepChanged"; step: string }
