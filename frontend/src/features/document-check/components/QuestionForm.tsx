@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import { Icon } from "../../../shared/components/Icon";
+import { MAX_QUESTION_LENGTH } from "../model/validateDocument";
 
 type QuestionFormProps = {
   question: string;
@@ -30,6 +31,7 @@ export function QuestionForm({ question, isProcessing, error, onQuestionChange, 
           autoComplete="off"
           value={question}
           disabled={isProcessing}
+          maxLength={MAX_QUESTION_LENGTH}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "question-error" : undefined}
           onChange={(event) => onQuestionChange(event.target.value)}
