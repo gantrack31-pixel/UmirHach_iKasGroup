@@ -2,6 +2,7 @@ import { statusContent } from "../../data/statusLabels";
 import type { CheckStatus, DocumentCheckResult } from "../../types/documentCheck";
 import { Icon } from "../../../../shared/components/Icon";
 import { SourceDetails } from "./SourceDetails";
+import { RuleReferences } from "../../../regulation/components/RuleReferences";
 
 type CheckAnswerProps = {
   status: CheckStatus;
@@ -20,11 +21,12 @@ export function CheckAnswer({ status, result }: CheckAnswerProps) {
         <h3>{result?.answerTitle ?? currentStatus.title}</h3>
       </div>
       <p>{result?.answer ?? currentStatus.answer}</p>
+      {result?.answerSources && !result.validation && <RuleReferences sources={result.answerSources} />}
       {result?.validation && (
         <div className="validation-summary">
           <strong>Комплектность документа</strong>
           <p>{result.validation.summary}</p>
-          {result.validation.sources.length > 0 && <small>{result.validation.sources.join("; ")}</small>}
+          {result.validation.sources.length > 0 && <small><RuleReferences sources={result.validation.sources} /></small>}
         </div>
       )}
       <SourceDetails result={result} />
