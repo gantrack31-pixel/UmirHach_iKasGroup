@@ -19,7 +19,7 @@ export function mapAnalyzeResponse(response: OcrAnalyzeResponse): DocumentCheckR
     ...answer,
     validation: {
       summary: validationSummary(response.validation),
-      sources: response.validation.sources.map(formatSource),
+      sources: response.validation.sources,
     },
     sourceTitle: "Источники и распознанный текст",
     sourceReference: [documentTypeLabels[response.document_type], ...answer.answerSources.map(formatSource)].join(" · "),
