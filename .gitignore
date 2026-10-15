@@ -28,3 +28,7 @@ models/
 
 # Obsidian: keep shared vault settings, ignore only per-device workspace state
 docs/obsidian-vault/.obsidian/workspace.json
+
+data
+docs
+backend
