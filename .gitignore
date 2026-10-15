@@ -1,13 +1,4 @@
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
 
-# JavaScript
 node_modules/
 dist/
 .vite/
@@ -28,3 +19,4 @@ models/
 
 # Obsidian: keep shared vault settings, ignore only per-device workspace state
 docs/obsidian-vault/.obsidian/workspace.json
+

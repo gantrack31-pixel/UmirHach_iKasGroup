@@ -1,3 +1,4 @@
+export { DocumentCheckWorkflow } from "./components/DocumentCheckWorkflow";
 export { CheckResultPanel } from "./components/CheckResultPanel";
 export { DocumentUploadPanel } from "./components/DocumentUploadPanel";
 export { ExtractedFieldsPanel } from "./components/ExtractedFieldsPanel";

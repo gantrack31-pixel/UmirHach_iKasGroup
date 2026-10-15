@@ -1,9 +1,9 @@
 export function SiteFooter() {
   return (
     <footer className="page-footer">
-      <span>ОНЛАЙН-ДЕКАНАТ</span>
+      <span>StudDoc</span>
       <span>Помогаем разобраться в документах</span>
-      <span>Демо-версия · 2025</span>
+      <span>Демо-версия · 2026</span>
     </footer>
   );
 }

@@ -16,17 +16,18 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
     sourceReference: "Справка об обучении · пример",
     sourceExcerpt: "Показан пример результата интерфейса. Это не официальное заключение и не проверка по нормативному документу.",
   },
-  application: {
+  academic_leave_application: {
     status: "warning",
     fields: [
-      { id: "applicant_name", label: "ФИО заявителя", value: "Иванов Иван Иванович", status: "found" },
-      { id: "application_topic", label: "Тема заявления", value: "Перевод на следующий курс", status: "found" },
-      { id: "application_date", label: "Дата", value: "Не указана в демо-сценарии", status: "review" },
-      { id: "signature", label: "Подпись", value: "Требует ручной проверки", status: "review" },
+      { id: "student_name", label: "ФИО заявителя", value: "Иванов Иван Иванович", status: "found" },
+      { id: "group", label: "Учебная группа", value: "ПИ-21", status: "found" },
+      { id: "leave_reason", label: "Причина отпуска", value: "По семейным обстоятельствам", status: "found" },
+      { id: "application_date", label: "Дата заявления", value: "Не указана в демо-сценарии", status: "review" },
+      { id: "signature_present", label: "Подпись", value: "Требует ручной проверки", status: "review" },
     ],
-    answer: "Демонстрационный сценарий показывает замечания к заявлению. Фактическое содержание загруженного файла в браузере не распознаётся.",
+    answer: "Демонстрационный сценарий показывает замечания к заявлению на академический отпуск. Фактическое содержание загруженного файла в браузере не распознаётся.",
     sourceTitle: "Демонстрационное основание",
-    sourceReference: "Заявление · пример проверки",
+    sourceReference: "Заявление на академический отпуск · пример проверки",
     sourceExcerpt: "Для реальной оценки заявления требуется согласованный перечень требований и распознавание его содержимого.",
   },
   internship_certificate: {
@@ -41,16 +42,5 @@ export const demoScenarios: Record<DocumentType, DocumentCheckResult> = {
     sourceTitle: "Демонстрационное основание",
     sourceReference: "Справка о практике · пример проверки",
     sourceExcerpt: "Реальные требования к справке о практике необходимо сверить с официальными правилами организации и университета.",
-  },
-  other: {
-    status: "unknown",
-    fields: [
-      { id: "document_type", label: "Тип документа", value: "Не определён в демо-режиме", status: "missing" },
-      { id: "recognized_data", label: "Распознанные сведения", value: "Для этого типа нет демо-сценария", status: "missing" },
-    ],
-    answer: "Для выбранного типа нет демонстрационного сценария. Файл не распознавался; для настоящего результата потребуется подключение сервиса обработки документов.",
-    sourceTitle: "Источник не подключён",
-    sourceReference: "Нет проверяемого основания",
-    sourceExcerpt: "В этом демо-режиме официальные источники и правила не загружаются и не проверяются.",
   },
 };

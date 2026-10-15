@@ -1,5 +1,5 @@
 export type CheckStatus = "success" | "warning" | "unknown";
-export type DocumentType = "study_certificate" | "application" | "internship_certificate" | "other";
+export type DocumentType = "study_certificate" | "academic_leave_application" | "internship_certificate";
 export type FieldStatus = "found" | "review" | "missing" | "manual";
 export type FieldSource = "ocr" | "manual";
 
@@ -29,6 +29,13 @@ export type DocumentCheckResult = {
   status: CheckStatus;
   fields: ExtractedField[];
   answer: string;
+  answerTitle?: string;
+  answerable?: boolean;
+  answerSources?: string[];
+  validation?: {
+    summary: string;
+    sources: string[];
+  };
   sourceTitle: string;
   sourceReference: string;
   sourceExcerpt: string;
@@ -38,7 +45,7 @@ export type DocumentCheckInput = {
   file: File;
   documentType: DocumentType;
   question: string;
-  manualFields?: ExtractedField[];
+  manualFields?: Pick<ExtractedField, "id" | "value">[];
 };
 
 export type DocumentCheckState = {
