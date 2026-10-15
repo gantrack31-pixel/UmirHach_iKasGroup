@@ -1,7 +1,15 @@
+import { useEffect } from "react";
 import { Icon } from "../shared/components/Icon";
 import { regulationAnchor, regulationNotice, regulationSections, regulationTitle } from "../features/regulation/data/regulation";
 
 export function RegulationPage() {
+  useEffect(() => {
+    const anchor = decodeURIComponent(window.location.hash.slice(1));
+    if (!anchor) return;
+
+    document.getElementById(anchor)?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <main className="regulation-page">
       <a className="regulation-back" href="/" aria-label="Вернуться к проверке">
