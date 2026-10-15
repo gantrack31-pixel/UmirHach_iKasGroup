@@ -1,5 +1,6 @@
 import type { ExtractedField } from "../types/documentCheck";
-import { Icon } from "../../../shared/components/Icon";
+import { PanelHeading } from "../../../shared/components/PanelHeading";
+import { ExtractedFieldRow } from "./fields/ExtractedFieldRow";
 
 type ExtractedFieldsPanelProps = {
   fields: ExtractedField[];
@@ -9,18 +10,10 @@ type ExtractedFieldsPanelProps = {
 export function ExtractedFieldsPanel({ fields, hasResult }: ExtractedFieldsPanelProps) {
   return (
     <article className="panel fields-panel">
-      <div className="panel-heading"><span className="step-number">02</span><h2>Что найдено</h2></div>
+      <PanelHeading step="02" title="Что найдено" />
       {fields.length ? (
         <div className="field-list" aria-live="polite">
-          {fields.map(({ label, value, status }) => (
-            <div className={`field-row field-${status}`} key={label}>
-              <strong>{label}</strong>
-              <span>{value}</span>
-              <span className="field-check" aria-label={status === "found" ? "Найдено в демо-результате" : status === "review" ? "Требует проверки в демо-результате" : "Не найдено в демо-результате"}>
-                {status === "found" ? <Icon name="check" size={14} /> : status === "review" ? "!" : "—"}
-              </span>
-            </div>
-          ))}
+          {fields.map((field) => <ExtractedFieldRow key={field.label} {...field} />)}
         </div>
       ) : (
         <div className="fields-empty" aria-live="polite">

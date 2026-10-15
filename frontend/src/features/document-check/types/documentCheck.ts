@@ -26,6 +26,13 @@ export type DocumentCheckResult = {
   status: CheckStatus;
   fields: ExtractedField[];
   answer: string;
+  answerTitle?: string;
+  answerable?: boolean;
+  answerSources?: string[];
+  validation?: {
+    summary: string;
+    sources: string[];
+  };
   sourceTitle: string;
   sourceReference: string;
   sourceExcerpt: string;
