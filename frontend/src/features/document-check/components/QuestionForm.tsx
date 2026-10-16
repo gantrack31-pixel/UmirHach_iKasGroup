@@ -5,12 +5,13 @@ import { MAX_QUESTION_LENGTH } from "../model/validateDocument";
 type QuestionFormProps = {
   question: string;
   isProcessing: boolean;
+  hasManualFields: boolean;
   error: string;
   onQuestionChange: (question: string) => void;
   onSubmit: () => void;
 };
 
-export function QuestionForm({ question, isProcessing, error, onQuestionChange, onSubmit }: QuestionFormProps) {
+export function QuestionForm({ question, isProcessing, hasManualFields, error, onQuestionChange, onSubmit }: QuestionFormProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit();
@@ -42,7 +43,7 @@ export function QuestionForm({ question, isProcessing, error, onQuestionChange, 
         />
         <button className="button button-primary submit-button" type="submit" disabled={isProcessing}>
           <Icon name="send" size={19} />
-          {isProcessing ? "Проверяем…" : question.trim() ? "Задать вопрос" : "Проверить комплектность"}
+          {isProcessing ? "Проверяем…" : hasManualFields ? "Перепроверить документ" : question.trim() ? "Задать вопрос" : "Проверить комплектность"}
         </button>
       </form>
       {error && <p className="inline-error" id="question-error" role="alert">{error}</p>}

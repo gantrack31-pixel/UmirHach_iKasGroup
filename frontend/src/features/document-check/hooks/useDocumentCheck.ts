@@ -29,6 +29,7 @@ export function useDocumentCheck(service: DocumentCheckService) {
       file: state.file!.file,
       documentType: state.documentType as DocumentType,
       question: state.question,
+      manualFields: state.result?.fields.filter((field) => field.status === "manual" && field.value.trim()) ?? [],
     };
 
     dispatch({ type: "check/started" });
@@ -52,6 +53,7 @@ export function useDocumentCheck(service: DocumentCheckService) {
     removeFile: () => dispatch({ type: "file/removed" }),
     setQuestion: (question: string) => dispatch({ type: "question/changed", question }),
     setDocumentType: (documentType: DocumentType | "") => dispatch({ type: "documentType/changed", documentType }),
+    setManualField: (fieldId: string, value: string) => dispatch({ type: "field/manualChanged", fieldId, value }),
     runCheck,
   };
 }

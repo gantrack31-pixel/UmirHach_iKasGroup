@@ -18,6 +18,7 @@ export function parseAnalyzeResponse(value: unknown): OcrAnalyzeResponse {
       isRecord(value.validation) &&
       ["document_ok", "missing_fields"].includes(String(value.validation.status)) &&
       isStringArray(value.validation.missing_fields) && isStringArray(value.validation.sources) &&
+      (value.manual_fields === undefined || isStringArray(value.manual_fields)) &&
       value.validation.missing_fields.every((key) => Object.prototype.hasOwnProperty.call(value.fields, key)) &&
       isRecord(value.classification)) {
     const { intent, field } = value.classification;

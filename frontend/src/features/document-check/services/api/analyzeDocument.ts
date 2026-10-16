@@ -11,6 +11,9 @@ export async function analyzeDocument(input: DocumentCheckInput): Promise<Respon
   formData.append("photos", input.file, input.file.name);
   formData.append("prompt", input.question.trim() ? input.question : COMPLETENESS_QUESTION);
   formData.append("document_type", input.documentType);
+  if (input.manualFields?.length) {
+    formData.append("manual_fields", JSON.stringify(input.manualFields));
+  }
 
   const response = await fetch(`${OCR_API_URL}/analyze`, {
     method: "POST",

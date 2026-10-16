@@ -24,7 +24,11 @@ export function DocumentCheckWorkflow() {
           onFileRemove={documentCheck.removeFile}
           onDocumentTypeChange={documentCheck.setDocumentType}
         />
-        <ExtractedFieldsPanel fields={documentCheck.result?.fields ?? []} hasResult={Boolean(documentCheck.result)} />
+        <ExtractedFieldsPanel
+          fields={documentCheck.result?.fields ?? []}
+          hasResult={Boolean(documentCheck.result)}
+          onManualFieldChange={documentCheck.setManualField}
+        />
         <CheckResultPanel
           status={documentCheck.status}
           isProcessing={documentCheck.isProcessing}
@@ -35,6 +39,7 @@ export function DocumentCheckWorkflow() {
       <QuestionForm
         question={documentCheck.question}
         isProcessing={documentCheck.isProcessing}
+        hasManualFields={Boolean(documentCheck.result?.validation?.needsRecheck || documentCheck.result?.fields.some((field) => field.status === "manual"))}
         error={documentCheck.formError}
         onQuestionChange={documentCheck.setQuestion}
         onSubmit={documentCheck.runCheck}

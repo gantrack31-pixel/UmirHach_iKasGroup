@@ -11,7 +11,7 @@ test("accepts a question at the backend character limit and rejects a longer one
   assert.equal(validateDocumentCheckInput(file, "study_certificate", "a".repeat(2001)).target, "question");
 });
 
-test("requires a file and type but accepts an empty question", () => {
+test("requires a file and document type but accepts an empty question", () => {
   assert.equal(validateDocumentCheckInput(null, "", "").target, "file");
   assert.equal(validateDocumentCheckInput(file, "", "").target, "documentType");
   assert.equal(validateDocumentCheckInput(file, "study_certificate", ""), null);
@@ -66,6 +66,27 @@ test("a successful request preserves the service result and exits processing", (
   assert.equal(next.isProcessing, false);
   assert.equal(next.processingStep, "");
   assert.equal(next.result, result);
+});
+
+test("manual corrections invalidate the previous action list until the server checks again", () => {
+  const result = {
+    status: "warning",
+    fields: [{ id: "issue_date", label: "Дата выдачи", value: "не найдено", status: "missing" }],
+    validation: {
+      summary: "Дата выдачи не найдена",
+      sources: ["rule:3.1"],
+      actions: [{ fieldId: "issue_date", title: "Дата выдачи", description: "Проверьте оригинал", sources: ["rule:3.1"] }],
+    },
+  };
+
+  const next = documentCheckReducer({ ...initialDocumentCheckState, result }, {
+    type: "field/manualChanged", fieldId: "issue_date", value: "2026-10-16",
+  });
+
+  assert.equal(next.result.validation.needsRecheck, true);
+  assert.deepEqual(next.result.validation.actions, []);
+  assert.equal(next.result.status, "unknown");
+  assert.equal(result.validation.actions.length, 1);
 });
 
 test("a failed request exits processing and exposes the service error", () => {
