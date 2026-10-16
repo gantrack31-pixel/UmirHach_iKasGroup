@@ -237,6 +237,81 @@
   display: block;
   font-size: 12px;
 }
+.document-actions {
+  margin-bottom: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.document-actions h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+}
+.document-actions p {
+  margin: 4px 0 8px;
+  color: var(--muted);
+}
+.document-action-list {
+  display: grid;
+  gap: 5px;
+  max-height: 230px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 2px 4px 2px 22px;
+  scrollbar-width: thin;
+}
+.document-action-list li {
+  padding: 0 9px;
+  border-radius: 6px;
+  background: #fff;
+}
+.document-action-list li::marker {
+  color: var(--teal-dark);
+  font-weight: 800;
+}
+.document-action-list strong {
+  color: var(--ink);
+}
+.document-action-list small {
+  display: block;
+  font-size: 11px;
+}
+.document-action-list summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.document-action-list summary::-webkit-details-marker {
+  display: none;
+}
+.document-action-list summary strong {
+  flex: 1;
+  min-width: 0;
+}
+.document-action-list summary::after {
+  content: "+";
+  flex-shrink: 0;
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+.document-action-list details[open] > summary::after {
+  content: "−";
+}
+.document-action-list summary:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.document-action-list details > p {
+  margin: 0 0 9px;
+}
 .source-link small {
   overflow-wrap: anywhere;
 }

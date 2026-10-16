@@ -2,6 +2,7 @@ import { statusContent } from "../../data/statusLabels";
 import type { CheckStatus, DocumentCheckResult } from "../../types/documentCheck";
 import { Icon } from "../../../../shared/components/Icon";
 import { SourceDetails } from "./SourceDetails";
+import { DocumentActions } from "./DocumentActions";
 import { RuleReferences } from "../../../regulation/components/RuleReferences";
 
 type CheckAnswerProps = {
@@ -29,6 +30,7 @@ export function CheckAnswer({ status, result }: CheckAnswerProps) {
           {result.validation.sources.length > 0 && <small><RuleReferences sources={result.validation.sources} /></small>}
         </div>
       )}
+      <DocumentActions actions={result?.validation?.actions ?? []} />
       <SourceDetails result={result} />
     </>
   );

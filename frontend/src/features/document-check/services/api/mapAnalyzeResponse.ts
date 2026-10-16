@@ -1,5 +1,6 @@
 import { documentTypeLabels } from "../../data/documentTypes.ts";
 import { buildDocumentAnswer } from "../../model/buildDocumentAnswer.ts";
+import { buildDocumentActions } from "../../model/buildDocumentActions.ts";
 import { formatFieldValue, formatSource, getFieldLabel, getFieldStatus, validationSummary } from "../../model/documentPresentation.ts";
 import type { OcrAnalyzeResponse } from "../../types/api";
 import type { DocumentCheckResult } from "../../types/documentCheck";
@@ -20,6 +21,7 @@ export function mapAnalyzeResponse(response: OcrAnalyzeResponse): DocumentCheckR
     validation: {
       summary: validationSummary(response.validation),
       sources: response.validation.sources,
+      actions: buildDocumentActions(response.document_type, response.validation),
     },
     sourceTitle: "Источники и распознанный текст",
     sourceReference: [documentTypeLabels[response.document_type], ...answer.answerSources.map(formatSource)].join(" · "),
