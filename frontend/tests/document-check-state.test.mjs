@@ -11,10 +11,11 @@ test("accepts a question at the backend character limit and rejects a longer one
   assert.equal(validateDocumentCheckInput(file, "study_certificate", "a".repeat(2001)).target, "question");
 });
 
-test("checks file, type and question in the existing order", () => {
+test("requires a file and type but accepts an empty question", () => {
   assert.equal(validateDocumentCheckInput(null, "", "").target, "file");
   assert.equal(validateDocumentCheckInput(file, "", "").target, "documentType");
-  assert.equal(validateDocumentCheckInput(file, "study_certificate", "   ").target, "question");
+  assert.equal(validateDocumentCheckInput(file, "study_certificate", ""), null);
+  assert.equal(validateDocumentCheckInput(file, "study_certificate", "   "), null);
 });
 
 test("accepts PDF, PNG and JPEG with matching MIME types", () => {

@@ -195,3 +195,38 @@ test("offers actions for the internship supervisor's signature and organization'
   assert.match(result.validation.actions[1].description, /печати организации/);
   assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:5.2"], ["rule:5.3"]]);
 });
+
+for (const question of ["", "   ", "\t\n"]) {
+  test(`sends the completeness question for blank input ${JSON.stringify(question)}`, async () => {
+    const payload = responseFixture();
+    payload.classification = { intent: "validation", field: null };
+    mock.method(globalThis, "fetch", async () => Response.json(payload));
+
+    const result = await new ApiDocumentCheckService().analyze({
+      file: new File(["test"], "document.pdf", { type: "application/pdf" }),
+      documentType: "study_certificate",
+      question,
+    }, () => {});
+
+    const request = globalThis.fetch.mock.calls[0].arguments[1];
+    assert.equal(request.body.get("prompt"), "Содержит ли документ все обязательные сведения?");
+    assert.equal(result.status, "success");
+    assert.equal(result.answerTitle, "Предварительная проверка");
+    assert.deepEqual(result.answerSources, payload.validation.sources);
+  });
+}
+
+
+test("preserves the original nonblank question including surrounding whitespace", async () => {
+  const question = "  Когда выдали справку?  ";
+  mock.method(globalThis, "fetch", async () => Response.json(responseFixture()));
+
+  await new ApiDocumentCheckService().analyze({
+    file: new File(["test"], "document.pdf", { type: "application/pdf" }),
+    documentType: "study_certificate",
+    question,
+  }, () => {});
+
+  const request = globalThis.fetch.mock.calls[0].arguments[1];
+  assert.equal(request.body.get("prompt"), question);
+});

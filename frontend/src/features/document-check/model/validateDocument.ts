@@ -27,7 +27,6 @@ export function validateUploadedFile(file: File): string | null {
 export function validateDocumentCheckInput(file: File | null, documentType: DocumentType | "", question: string): ValidationError | null {
   if (!file) return { target: "file", message: "Сначала загрузите документ." };
   if (!documentType) return { target: "documentType", message: "Выберите тип документа." };
-  if (!question.trim()) return { target: "question", message: "Напишите вопрос, чтобы запустить демонстрационную проверку." };
   if (question.length > MAX_QUESTION_LENGTH) return { target: "question", message: `Вопрос не должен превышать ${MAX_QUESTION_LENGTH} символов.` };
   return null;
 }

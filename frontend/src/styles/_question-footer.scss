@@ -32,6 +32,12 @@
   align-items: stretch;
   gap: 16px;
 }
+.question-footnote {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
 .question-form input {
   min-width: 0;
   min-height: 58px;

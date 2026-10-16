@@ -3,12 +3,13 @@ import type { DocumentCheckInput } from "../../types/documentCheck";
 import { readApiError } from "./readApiError.ts";
 
 const OCR_API_URL = (getRuntimeEnv().VITE_OCR_API_URL || "/ocr-api").replace(/\/+$/, "");
+const COMPLETENESS_QUESTION = "Содержит ли документ все обязательные сведения?";
 
 /** Uploads the original document and checks the HTTP response status. */
 export async function analyzeDocument(input: DocumentCheckInput): Promise<Response> {
   const formData = new FormData();
   formData.append("photos", input.file, input.file.name);
-  formData.append("prompt", input.question);
+  formData.append("prompt", input.question.trim() ? input.question : COMPLETENESS_QUESTION);
   formData.append("document_type", input.documentType);
 
   const response = await fetch(`${OCR_API_URL}/analyze`, {
