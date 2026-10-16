@@ -9,13 +9,34 @@
 валидации, без дополнительной генерации нейросетью. Доступен экспорт `results.json`.
 Окончательное решение о принятии документа остаётся за сотрудником деканата.
 
+## Docker
+
+Из корня `Code` выполните `docker compose up -d --build`. Образ включает
+Python 3.13, CPU PyTorch, Tesseract и русскую OCR-модель с проверкой SHA-256.
+Для Qwen выполните `docker compose run --rm model-setup`: веса сохраняются
+в общем именованном volume. Без них вопросы по правилам работают, а запросы,
+требующие нейросети, возвращают 503. HTTP-контракт не меняется.
+Подробная инструкция: [DOCKER.md](../../DOCKER.md).
+
 ## Установка
 
-Команды выполняются из корня проекта, где находятся `main.py` и `models/`.
+Команды этого раздела выполняются из `backend/online-dekanat-backend/`,
+где находится `main.py`. Папка `models/` создаётся при подготовке моделей.
+Нужен Python 3.12+, рекомендуется 3.13; Python 3.11 несовместим с закреплённой
+NumPy. Для Windows самый проверяемый путь — Docker из корня репозитория.
+
+На macOS перед созданием окружения установите Tesseract:
+`brew install tesseract pkgconf`. Нужны также установленный Python и инструменты
+компиляции, если для вашей платформы нет готового wheel.
+
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 ```
+
+В Windows для указанного ниже wheel используйте Python 3.14 x64 и создайте
+окружение командой `py -3.14 -m venv .venv` вместо `python3 -m venv .venv`.
+При другом Python нужен соответствующий wheel; для первого запуска используйте Docker.
 
 Активация на Windows PowerShell:
 
@@ -42,20 +63,33 @@ python -m pip install https://github.com/simonflueckiger/tesserocr-windows_build
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y build-essential python3-dev pkg-config libtesseract-dev libleptonica-dev
+sudo apt-get install -y python3-venv build-essential python3-dev pkg-config libtesseract-dev libleptonica-dev tesseract-ocr libgomp1 curl
 ```
 
 Нативная установка зависит от платформы. Текущая интеграция проверялась
 на Linux / Python 3.13; чистая установка на всех платформах не проверена.
 
-### Зависимости и модель вопросов
+### Зависимости: активируйте .venv перед командами
 
-Для CPU установите соответствующую сборку PyTorch перед остальными зависимостями:
+Следующие команды используют `python` из активированного `.venv`.
+На Linux/Windows для CPU установите PyTorch перед остальными зависимостями:
 
 ```bash
 python -m pip install "torch==2.14.1" --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r requirements.txt
 python -m pip check
+```
+
+На macOS вместо команды с CPU-индексом установите PyTorch из PyPI:
+`python -m pip install "torch==2.14.1"`, затем выполните установку requirements
+и `pip check` из блока выше. В Windows окружение можно не активировать:
+заменяйте `python` на `.venv\Scripts\python.exe` во всех командах.
+
+Для OCR сначала скачайте русскую модель из следующего раздела. Qwen не нужна
+для первого запуска OCR и стандартной проверки комплектности. Для вопросов,
+требующих нейросети, отдельно выполните после установки зависимостей:
+
+```bash
 python -m services.question_model --download --warmup
 ```
 
@@ -84,7 +118,8 @@ mkdir -p models/tessdata
 curl --fail --location https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/rus.traineddata --output models/tessdata/rus.traineddata
 ```
 
-Источник: `tesseract-ocr/tessdata_fast`, версия 4.1.0. В PowerShell используйте
+Источник: `tesseract-ocr/tessdata_fast`, версия 4.1.0. В PowerShell сначала создайте каталог командой
+`New-Item -ItemType Directory -Force models/tessdata`, затем используйте
 `curl.exe` вместо `curl`. Уже имеющийся файл повторно скачивать не нужно.
 EasyOCR не используется. Внешних OCR/LLM API нет.
 
@@ -221,14 +256,10 @@ Workflow основного репозитория `.github/workflows/backend-ch
 проверки из каталога backend на Python 3.12 и 3.13. Закреплённая NumPy 2.5.3
 требует Python 3.12 или новее; Python 3.11 в эту матрицу не входит.
 
-Локальная проверка последнего этапа: 20 доступных PDF (`open-001`–`open-018`,
-`open-027`, `open-030`) и их PNG-рендеры, 160 запросов до конечного ответа.
-Извлечённые поля, валидация и структурированные ответы совпали с эталоном
-доступного поднабора. Дополнительно проверены 120 шаблонных вопросов на
-эталонных карточках; это не OCR отсутствующих файлов. Все шаблонные вопросы
-обработаны правилами. Запуск нейросетевого fallback 1.7B в FP32 не проверен
-в среде с 4 ГБ RAM. Это не полная приёмка 30 исходных изображений и не
-гарантия качества на произвольных формулировках.
+Docker-сборка и реальный OCR проверены на Linux ARM64: по одному PDF каждого
+типа, комплектность, отсутствие ответа и ручная правка через Nginx. Это не
+гарантия распознавания произвольных снимков. Нейросетевой вывод Qwen в эту
+проверку не входил; см. требования к памяти и отдельную подготовку весов.
 
 ## Извлечение значений с новой строки
 
@@ -263,8 +294,8 @@ Workflow основного репозитория `.github/workflows/backend-ch
 иначе `pdf`. Эталонный `reference_results.json` приложению не нужен.
 
 ```bash
-python -m services.answer_service --documents /path/to/kit/documents.json --questions /path/to/kit/questions.json --output results.json
-python /path/to/kit/evaluate.py --reference /path/to/kit/reference_results.json --predictions results.json
+python -m services.answer_service --documents ../../data/documents.json --questions ../../data/questions.json --output results.json
+python ../../data/evaluate.py --reference ../../data/reference_results.json --predictions results.json
 ```
 
 Для другого адреса API задайте `--base-url http://127.0.0.1:8000`. Каждый вопрос
@@ -274,3 +305,18 @@ python /path/to/kit/evaluate.py --reference /path/to/kit/reference_results.json 
 ошибкой и не заменяет предыдущий файл результата. Отсутствующие документы
 не восстанавливаются из эталонной разметки. Время ожидания одного запроса —
 180 секунд. Экспорт не является отдельным серверным эндпоинтом.
+
+## Диагностика локального запуска
+
+| Симптом | Что сделать |
+| --- | --- |
+| `Could not import module main` | Запускайте Uvicorn из каталога с main.py |
+| `Failed to init API` или ошибка rus.traineddata | Проверьте файл `models/tessdata/rus.traineddata` и рабочую папку |
+| Ошибка импорта tesserocr | Установите системный Tesseract и wheel для вашей версии Python; для Docker это уже сделано в образе |
+| Ошибка установки NumPy | Проверьте `python --version`: требуется 3.12+ |
+| Нет локальных весов классификатора | Подготовьте Qwen отдельной командой `--download --warmup` |
+| Порт 8000 занят | Остановите прежний сервер либо используйте Docker с другим BACKEND_PORT |
+
+Для сайта смена только порта Uvicorn недостаточна: локальный Vite-прокси
+настроен на 8000. В Docker внутренний порт backend остаётся 8000 независимо
+от BACKEND_PORT на хосте. `GET /health` не проверяет наличие моделей.

@@ -1,18 +1,52 @@
-# TODO: согласовать общий способ запуска frontend/backend и переменные окружения.
-# Заготовка сервисов для локальной разработки; OCR и LLM здесь не запускаются.
 services:
   backend:
+    image: studdoc-backend:local
     build:
-      context: ./backend
+      context: ./backend/online-dekanat-backend
     ports:
-      - "8000:8000"
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+    environment:
+      QUESTION_MODEL_CACHE: /app/models/llm
+      QUESTION_MODEL_THREADS: ${QUESTION_MODEL_THREADS:-4}
+      HF_HUB_DISABLE_XET: "1"
+    volumes:
+      - question-model-cache:/app/models/llm
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      start_period: 20s
+      retries: 5
+    restart: unless-stopped
 
   frontend:
+    image: studdoc-frontend:local
     build:
       context: ./frontend
     ports:
-      - "5173:5173"
-    environment:
-      VITE_API_BASE_URL: http://localhost:8000
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  model-setup:
+    image: studdoc-backend:local
+    build:
+      context: ./backend/online-dekanat-backend
+    profiles: ["setup"]
+    command: ["python", "-m", "services.question_model", "--download", "--warmup"]
+    environment:
+      QUESTION_MODEL_CACHE: /app/models/llm
+      QUESTION_MODEL_THREADS: ${QUESTION_MODEL_THREADS:-4}
+      HF_HUB_DISABLE_XET: "1"
+    volumes:
+      - question-model-cache:/app/models/llm
+
+volumes:
+  question-model-cache:

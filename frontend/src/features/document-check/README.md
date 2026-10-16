@@ -5,6 +5,18 @@
 `pages/DocumentCheckerPage.tsx` размещает её рядом с hero и footer;
 внутренний сценарий собирает `components/DocumentCheckWorkflow.tsx`.
 
+## Как запустить и проверить эту фичу
+
+Первый запуск всего проекта: [DOCKER.md](../../../../DOCKER.md).
+Команды Compose выполняются из корня проекта, а не из этой папки.
+Локальная разработка: [README frontend](../../../README.md) и
+[README backend](../../../../backend/online-dekanat-backend/README.md).
+Без backend или в демо-режиме настоящий документ не распознаётся.
+
+Для проверки загрузите `data/documents/open-002.pdf` как справку об обучении,
+оставьте вопрос пустым и запустите проверку. Должны появиться пропуск даты
+выдачи и действие со ссылкой на 3.1. В API всегда отправляется непустой prompt.
+
 ## Поток данных
 
 1. `DocumentUploadPanel` и `QuestionForm` передают действия в `useDocumentCheck`.
