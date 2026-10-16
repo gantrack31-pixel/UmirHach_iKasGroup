@@ -22,6 +22,13 @@ export type StatusContent = {
   icon: string;
 };
 
+export type DocumentNextAction = {
+  fieldId: string;
+  title: string;
+  description: string;
+  sources: string[];
+};
+
 export type DocumentCheckResult = {
   status: CheckStatus;
   fields: ExtractedField[];
@@ -32,6 +39,7 @@ export type DocumentCheckResult = {
   validation?: {
     summary: string;
     sources: string[];
+    actions?: DocumentNextAction[];
   };
   sourceTitle: string;
   sourceReference: string;

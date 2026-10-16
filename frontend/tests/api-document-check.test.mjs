@@ -84,6 +84,7 @@ test("explains complete validation without claiming the document is accepted", a
   const result = await analyze(payload);
   assert.equal(result.status, "success");
   assert.match(result.answer, /все обязательные сведения/i);
+  assert.deepEqual(result.validation.actions, []);
   assert.match(result.answer, /сотрудник деканата/i);
   assert.deepEqual(result.answerSources, payload.validation.sources);
 });
@@ -143,4 +144,54 @@ test("sends the original file, question and document type as multipart form data
   assert.equal(request.body.get("photos").name, "document.pdf");
   assert.equal(request.body.get("prompt"), "Когда выдали справку?");
   assert.equal(request.body.get("document_type"), "study_certificate");
+});
+
+
+test("offers actions for missing fields even when the question asks about a found field", async () => {
+  const payload = responseFixture();
+  payload.fields.student_name = "не найдено";
+  payload.fields.signature_present = false;
+  payload.fields.seal_present = false;
+  payload.validation = {
+    status: "missing_fields",
+    missing_fields: ["student_name", "signature_present", "seal_present"],
+    sources: ["rule:3.1", "rule:3.2", "rule:3.3"],
+  };
+
+  const result = await analyze(payload);
+
+  assert.deepEqual(result.validation.actions.map((action) => action.fieldId), payload.validation.missing_fields);
+  assert.match(result.validation.actions[0].description, /оригинал/);
+  assert.match(result.validation.actions[1].description, /уполномоченного сотрудника вуза/);
+  assert.match(result.validation.actions[2].description, /печати вуза/);
+  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:3.1"], ["rule:3.2"], ["rule:3.3"]]);
+});
+
+test("offers the student's signature action for academic leave without a seal requirement", async () => {
+  const payload = responseFixture();
+  payload.document_type = "academic_leave_application";
+  payload.fields = { student_name: "Иванов Иван Иванович", signature_present: false };
+  payload.classification = { intent: "validation", field: null };
+  payload.validation = { status: "missing_fields", missing_fields: ["signature_present"], sources: ["rule:4.2"] };
+
+  const result = await analyze(payload);
+
+  assert.equal(result.validation.actions.length, 1);
+  assert.match(result.validation.actions[0].description, /подписи студента/);
+  assert.deepEqual(result.validation.actions[0].sources, ["rule:4.2"]);
+});
+
+test("offers actions for the internship supervisor's signature and organization's seal", async () => {
+  const payload = responseFixture();
+  payload.document_type = "internship_certificate";
+  payload.classification = { intent: "validation", field: null };
+  payload.validation = {
+    status: "missing_fields", missing_fields: ["signature_present", "seal_present"], sources: ["rule:5.2", "rule:5.3"],
+  };
+
+  const result = await analyze(payload);
+
+  assert.match(result.validation.actions[0].description, /руководителя практики/);
+  assert.match(result.validation.actions[1].description, /печати организации/);
+  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:5.2"], ["rule:5.3"]]);
 });
