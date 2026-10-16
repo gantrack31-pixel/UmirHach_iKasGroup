@@ -19,12 +19,12 @@ export function CheckResultPanel({ status, isProcessing, processingStep, result 
         {isProcessing ? (
           <div className="processing-state">
             <span className="spinner" />
-            <strong>{processingStep || "Обрабатываем документ и вопрос…"}</strong>
+            <strong>{processingStep || "Обрабатываем документ…"}</strong>
           </div>
         ) : !status ? (
           <div className="result-empty" aria-live="polite">
             <strong>Результат появится здесь</strong>
-            <span>Выберите тип документа, загрузите файл и задайте вопрос.</span>
+            <span>Выберите тип документа, загрузите файл и нажмите «Проверить комплектность». Вопрос необязателен.</span>
           </div>
         ) : (
           <CheckAnswer status={status} result={result} />

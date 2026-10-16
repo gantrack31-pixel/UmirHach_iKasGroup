@@ -19,7 +19,7 @@ export function HeroSection() {
       </a>
       <div className="hero-copy">
         <h1 id="page-title">Проверка <span>документов</span> <br className="desktop-break" /> и ответы на вопросы</h1>
-        <p>Загрузите документ, задайте вопрос и получите ответ<br className="desktop-break" /> с опорой на правила университета</p>
+        <p>Загрузите документ и проверьте его комплектность.<br className="desktop-break" /> Задайте вопрос, если нужно уточнить сведения.</p>
       </div>
     </section>
   );
