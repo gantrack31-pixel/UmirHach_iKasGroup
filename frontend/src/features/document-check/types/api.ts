@@ -16,6 +16,7 @@ export type OcrAnalyzeResponse = {
   fields: Record<string, string | boolean>;
   validation: DocumentValidation;
   classification: QuestionClassification;
+  manual_fields?: string[];
 };
 
 export type FastApiErrorDetail = string | { msg?: string; loc?: Array<string | number> }[];

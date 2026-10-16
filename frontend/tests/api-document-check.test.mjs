@@ -23,12 +23,13 @@ function responseFixture() {
   };
 }
 
-async function analyze(payload, status = 200, headers = {}) {
+async function analyze(payload, status = 200, headers = {}, manualFields = undefined) {
   mock.method(globalThis, "fetch", async () => Response.json(payload, { status, headers }));
   return new ApiDocumentCheckService().analyze({
     file: new File(["test PDF"], "document.pdf", { type: "application/pdf" }),
     documentType: "study_certificate",
     question: "Когда выдали справку?",
+    manualFields,
   }, () => {});
 }
 
@@ -84,9 +85,58 @@ test("explains complete validation without claiming the document is accepted", a
   const result = await analyze(payload);
   assert.equal(result.status, "success");
   assert.match(result.answer, /все обязательные сведения/i);
-  assert.deepEqual(result.validation.actions, []);
   assert.match(result.answer, /сотрудник деканата/i);
   assert.deepEqual(result.answerSources, payload.validation.sources);
+  assert.deepEqual(result.validation.actions, []);
+});
+
+test("offers actions for missing fields even when the question asks about a found field", async () => {
+  const payload = responseFixture();
+  payload.fields.student_name = "не найдено";
+  payload.fields.signature_present = false;
+  payload.fields.seal_present = false;
+  payload.validation = {
+    status: "missing_fields",
+    missing_fields: ["student_name", "signature_present", "seal_present"],
+    sources: ["rule:3.1", "rule:3.2", "rule:3.3"],
+  };
+
+  const result = await analyze(payload);
+
+  assert.deepEqual(result.validation.actions.map((action) => action.fieldId), payload.validation.missing_fields);
+  assert.match(result.validation.actions[0].description, /оригинал/);
+  assert.match(result.validation.actions[1].description, /уполномоченного сотрудника вуза/);
+  assert.match(result.validation.actions[2].description, /печати вуза/);
+  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:3.1"], ["rule:3.2"], ["rule:3.3"]]);
+});
+
+test("offers the student's signature action for academic leave without a seal requirement", async () => {
+  const payload = responseFixture();
+  payload.document_type = "academic_leave_application";
+  payload.fields = { student_name: "Иванов Иван Иванович", signature_present: false };
+  payload.classification = { intent: "validation", field: null };
+  payload.validation = { status: "missing_fields", missing_fields: ["signature_present"], sources: ["rule:4.2"] };
+
+  const result = await analyze(payload);
+
+  assert.equal(result.validation.actions.length, 1);
+  assert.match(result.validation.actions[0].description, /подписи студента/);
+  assert.deepEqual(result.validation.actions[0].sources, ["rule:4.2"]);
+});
+
+test("offers actions for the internship supervisor's signature and organization's seal", async () => {
+  const payload = responseFixture();
+  payload.document_type = "internship_certificate";
+  payload.classification = { intent: "validation", field: null };
+  payload.validation = {
+    status: "missing_fields", missing_fields: ["signature_present", "seal_present"], sources: ["rule:5.2", "rule:5.3"],
+  };
+
+  const result = await analyze(payload);
+
+  assert.match(result.validation.actions[0].description, /руководителя практики/);
+  assert.match(result.validation.actions[1].description, /печати организации/);
+  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:5.2"], ["rule:5.3"]]);
 });
 
 test("answers who makes the decision with the relevant rule", async () => {
@@ -146,76 +196,41 @@ test("sends the original file, question and document type as multipart form data
   assert.equal(request.body.get("document_type"), "study_certificate");
 });
 
-
-test("offers actions for missing fields even when the question asks about a found field", async () => {
-  const payload = responseFixture();
-  payload.fields.student_name = "не найдено";
-  payload.fields.signature_present = false;
-  payload.fields.seal_present = false;
-  payload.validation = {
-    status: "missing_fields",
-    missing_fields: ["student_name", "signature_present", "seal_present"],
-    sources: ["rule:3.1", "rule:3.2", "rule:3.3"],
-  };
-
-  const result = await analyze(payload);
-
-  assert.deepEqual(result.validation.actions.map((action) => action.fieldId), payload.validation.missing_fields);
-  assert.match(result.validation.actions[0].description, /оригинал/);
-  assert.match(result.validation.actions[1].description, /уполномоченного сотрудника вуза/);
-  assert.match(result.validation.actions[2].description, /печати вуза/);
-  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:3.1"], ["rule:3.2"], ["rule:3.3"]]);
-});
-
-test("offers the student's signature action for academic leave without a seal requirement", async () => {
-  const payload = responseFixture();
-  payload.document_type = "academic_leave_application";
-  payload.fields = { student_name: "Иванов Иван Иванович", signature_present: false };
-  payload.classification = { intent: "validation", field: null };
-  payload.validation = { status: "missing_fields", missing_fields: ["signature_present"], sources: ["rule:4.2"] };
-
-  const result = await analyze(payload);
-
-  assert.equal(result.validation.actions.length, 1);
-  assert.match(result.validation.actions[0].description, /подписи студента/);
-  assert.deepEqual(result.validation.actions[0].sources, ["rule:4.2"]);
-});
-
-test("offers actions for the internship supervisor's signature and organization's seal", async () => {
-  const payload = responseFixture();
-  payload.document_type = "internship_certificate";
-  payload.classification = { intent: "validation", field: null };
-  payload.validation = {
-    status: "missing_fields", missing_fields: ["signature_present", "seal_present"], sources: ["rule:5.2", "rule:5.3"],
-  };
-
-  const result = await analyze(payload);
-
-  assert.match(result.validation.actions[0].description, /руководителя практики/);
-  assert.match(result.validation.actions[1].description, /печати организации/);
-  assert.deepEqual(result.validation.actions.map((action) => action.sources), [["rule:5.2"], ["rule:5.3"]]);
-});
-
 for (const question of ["", "   ", "\t\n"]) {
-  test(`sends the completeness question for blank input ${JSON.stringify(question)}`, async () => {
+  test(`sends the completeness question for blank input ${JSON.stringify(question)} and preserves corrections`, async () => {
     const payload = responseFixture();
     payload.classification = { intent: "validation", field: null };
+    const corrections = [{ id: "issue_date", value: "2026-09-01" }];
     mock.method(globalThis, "fetch", async () => Response.json(payload));
 
     const result = await new ApiDocumentCheckService().analyze({
       file: new File(["test"], "document.pdf", { type: "application/pdf" }),
       documentType: "study_certificate",
       question,
+      manualFields: corrections,
     }, () => {});
 
     const request = globalThis.fetch.mock.calls[0].arguments[1];
     assert.equal(request.body.get("prompt"), "Содержит ли документ все обязательные сведения?");
+    assert.deepEqual(JSON.parse(request.body.get("manual_fields")), corrections);
     assert.equal(result.status, "success");
     assert.equal(result.answerTitle, "Предварительная проверка");
     assert.deepEqual(result.answerSources, payload.validation.sources);
   });
 }
 
+test("sends manual field corrections and restores their source from the response", async () => {
+  const payload = responseFixture();
+  payload.manual_fields = ["issue_date"];
+  const corrections = [{ id: "issue_date", value: "2026-10-15" }];
+
+  const result = await analyze(payload, 200, {}, corrections);
+  const request = globalThis.fetch.mock.calls[0].arguments[1];
+
+  assert.deepEqual(JSON.parse(request.body.get("manual_fields")), corrections);
+  assert.equal(result.fields.find((field) => field.id === "issue_date").status, "manual");
+  assert.equal(result.fields.find((field) => field.id === "issue_date").source, "manual");
+});
 
 test("preserves the original nonblank question including surrounding whitespace", async () => {
   const question = "  Когда выдали справку?  ";

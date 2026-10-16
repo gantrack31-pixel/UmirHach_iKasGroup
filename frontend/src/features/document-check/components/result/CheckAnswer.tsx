@@ -2,8 +2,8 @@ import { statusContent } from "../../data/statusLabels";
 import type { CheckStatus, DocumentCheckResult } from "../../types/documentCheck";
 import { Icon } from "../../../../shared/components/Icon";
 import { SourceDetails } from "./SourceDetails";
-import { DocumentActions } from "./DocumentActions";
 import { RuleReferences } from "../../../regulation/components/RuleReferences";
+import { DocumentActions } from "./DocumentActions";
 
 type CheckAnswerProps = {
   status: CheckStatus;
@@ -11,6 +11,15 @@ type CheckAnswerProps = {
 };
 
 export function CheckAnswer({ status, result }: CheckAnswerProps) {
+  if (result?.validation?.needsRecheck) {
+    return (
+      <div className="validation-summary" role="status">
+        <strong>Нужна повторная проверка</strong>
+        <p>Вы изменили поля. Нажмите «Перепроверить документ», чтобы обновить результат и список действий.</p>
+        <p>Ручное уточнение исправляет распознанные сведения, но не добавляет их в оригинал документа.</p>
+      </div>
+    );
+  }
   const currentStatus = statusContent[status];
   const showCheck = result?.answerable === true || status === "success";
   const indicator = result?.answerable === false ? "?" : showCheck ? <Icon name="check" size={29} /> : currentStatus.icon;
